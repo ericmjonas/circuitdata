@@ -1,0 +1,12 @@
+Connectomics Data Sets
+========================
+
+The purpose of this archive is to provide canonical, cleaned-up, properly
+normalized versions of various connectomics datasets. All files
+are provided in SQLite format. This arose due to the difficulty
+of getting both clean data and metadata when working with these data sets. 
+
+Included are the preprocessing scripts and the resulting database, 
+but NOT the original data from which the data was derived (which
+is under merky copyright status). 
+
