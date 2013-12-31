@@ -10,3 +10,22 @@ Included are the preprocessing scripts and the resulting database,
 but NOT the original data from which the data was derived (which
 is under merky copyright status). 
 
+Each dataset is in a separate folder organized by where the data came
+from, a readme (containing notes explaining the data, the schema,
+etc.), the processing scripts, and the actual DB.
+
+If you are simply looking for an easy-connectivity-matrix to run
+algorithm X against, this might not be your target source. My goal is
+to provide scientifically-actionable-and-publishable connectivity
+and metadata. 
+
+Revisions: 
+
+As bugs in our conversion script are identified, we will update the
+data. 
+
+As datasets are revised (corrected), we will update the data. 
+
+Our goal is to never break your existing scientific code depending 
+on this data. 
+
