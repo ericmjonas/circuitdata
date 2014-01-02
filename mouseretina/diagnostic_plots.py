@@ -36,11 +36,9 @@ def create_adj_mat(con, area_thold, cell_data):
         i1 = id_to_pos.get(c_row['from_id'], -1)
         i2 = id_to_pos.get(c_row['to_id'], -1)
         if i1 >= 0 and i2 >= 0:
-            area_mat[i1, i2] = c_row['area']
+            area_mat[i1, i2] = c_row['contact_area']
 
-    lower_triangular_idx = np.tril_indices(CELL_N)
-
-    assert area_mat[lower_triangular_idx].sum() == 0
+ 
     return area_mat, cell_data.index.values
             
 
@@ -76,7 +74,7 @@ def plot_contacts(infile, outfile):
 
     f.savefig(outfile, dpi=600)
 
-@files("mouseretina.db", "cell_adj.png")
+@files("mouseretina.db", "adjmat.byid.png")
 def plot_adj(infile, outfile):
     """
     
@@ -87,10 +85,17 @@ def plot_adj(infile, outfile):
                                          con, index_col="cell_id")
 
 
-    area_mat, cell_ids = create_adj_mat(con, PAPER_MAX_CONTACT_AREA)
-    area_mat += area_mat.T
+    area_mat, cell_ids = create_adj_mat(con, PAPER_MAX_CONTACT_AREA, cell_data)
 
     CELL_N = len(cell_ids)
+
+    lower_triangular_idx = np.tril_indices(CELL_N)
+
+    assert area_mat[lower_triangular_idx].sum() == 0
+
+    area_mat += area_mat.T
+
+
     p = np.random.permutation(CELL_N)
     area_mat_p = area_mat[p, :]
     area_mat_p = area_mat_p[:, p]
@@ -145,19 +150,23 @@ def plot_somapos(infile, (pos_outfile,)):
     f.savefig(pos_outfile)
 
 EXAMPLES = [10, 50, 100, 150, 200, 250, 300, 350, 400]
-@files(['soma.positions.pickle', 'synapses.pickle'], 
+@files("mouseretina.db", 
        ['example.%d.pdf' % e for e in EXAMPLES])
-def plot_example_cells((pos_file, synapse_file), output_files):
-    soma_pos = pickle.load(open(pos_file, 'r'))
-    synapses = pickle.load(open(synapse_file, 'r'))['synapsedf']
+def plot_example_cells(infile, output_files):
+
+
+    con = sqlite3.connect(infile)
+    cells = pandas.io.sql.read_frame("select c.cell_id, s.x, s.z, s.y, t.coarse from cells as c join somapositions as s on c.cell_id = s.cell_id join types as t on c.type_id = t.type_id", 
+                                     con, index_col='cell_id')
+    contacts = pandas.io.sql.read_frame("select * from contacts", con)
+
 
     for CELL_ID, output_file in zip(EXAMPLES,  output_files):
-        soma_pos_vec = soma_pos['pos_vec']
-
+        
 
         f = pylab.figure(figsize=(16, 8))
         ax_yx = f.add_subplot(2, 1, 1)
-        ax_yx.scatter(soma_pos_vec[:, 1], soma_pos_vec[:, 0], 
+        ax_yx.scatter(cells['y'], cells['x'], 
                       c='k', edgecolor='none', s=3)
         ax_yx.set_xlim(120, 0)
         ax_yx.set_ylim(160, 0)
@@ -165,7 +174,7 @@ def plot_example_cells((pos_file, synapse_file), output_files):
         ax_yx.set_ylabel('x (um)')
 
         ax_zx = f.add_subplot(2, 1, 2)
-        ax_zx.scatter(soma_pos_vec[:, 2], soma_pos_vec[:, 0], 
+        ax_zx.scatter(cells['z'], cells['x'], 
                       c='k', edgecolor='none', s=3)
         ax_zx.set_xlim(80, 0)
         ax_zx.set_ylim(160, 0)
@@ -173,11 +182,11 @@ def plot_example_cells((pos_file, synapse_file), output_files):
         ax_zx.set_ylabel('x (um)')
 
         # now plot the target cell
-        tgt = soma_pos_vec[CELL_ID]
-        ax_yx.scatter(tgt[1], tgt[0], c='r', s=20)
-        ax_zx.scatter(tgt[2], tgt[0], c='r', s=20)
+        tgt = cells.iloc[CELL_ID]
+        ax_yx.scatter(tgt['y'], tgt['x'], c='r', s=20)
+        ax_zx.scatter(tgt['z'], tgt['x'], c='r', s=20)
 
-        tgt_df = synapses[(synapses['from_id'] == CELL_ID) | (synapses['to_id'] == CELL_ID)]
+        tgt_df = contacts[(contacts['from_id'] == CELL_ID+1) | (contacts['to_id'] == CELL_ID+1)]
         for area_range, size, color in [((0.0, 0.1), 1, 'b'), 
                                         ((0.1, 1.0), 5, 'g'), 
                                         ((1.0, 5.0), 15, 'r')]:
@@ -189,17 +198,19 @@ def plot_example_cells((pos_file, synapse_file), output_files):
 
         f.savefig(output_file)
 
-@files(["type_metadata.pickle", "soma.positions.pickle", "xlsxdata.pickle"], 
+@files("mouseretina.db", 
        ['adjmat.byclass.png'])
-def plot_adjmat_byclass((type_file, pos_file, xlsxdata_file), (adj_mat_plot,)):
-    soma_pos = pickle.load(open(pos_file, 'r'))
-    type_metadata = pickle.load(open(type_file, 'r'))['type_metadata']
-    xlsdata = pickle.load(open(xlsxdata_file, 'r'))
-    types = xlsdata['types']
-    area_mat = xlsdata['area_mat']
-    pos_vec = soma_pos['pos_vec']
-    CELL_N = len(pos_vec)
-    print "CELL_N=", CELL_N
+def plot_adjmat_byclass(infile, (adj_mat_plot,)):
+
+    con = sqlite3.connect(infile)
+    cell_data = pandas.io.sql.read_frame("select c.cell_id, t.type_id from cells as c join types as t on c.type_id = t.type_id order by t.type_id", 
+                                         con, index_col="cell_id")
+
+
+    area_mat, cell_ids = create_adj_mat(con, PAPER_MAX_CONTACT_AREA, cell_data)
+    area_mat += area_mat.T
+
+    CELL_N = len(area_mat)
 
 
     f = pylab.figure(figsize=(12, 12))
@@ -223,21 +234,21 @@ def plot_adjmat_byclass((type_file, pos_file, xlsxdata_file), (adj_mat_plot,)):
     f.savefig(adj_mat_plot, dpi=200)
 
 
-@files(["type_metadata.pickle", "soma.positions.pickle", "xlsxdata.pickle"], 
+@files("mouseretina.db", 
        ['adjmat.byz.png'])
-def plot_adjmat_byz((type_file, pos_file, xlsxdata_file), (adj_mat_plot,)):
-    soma_pos = pickle.load(open(pos_file, 'r'))
-    type_metadata = pickle.load(open(type_file, 'r'))['type_metadata']
-    xlsdata = pickle.load(open(xlsxdata_file, 'r'))
-    types = xlsdata['types']
-    area_mat = xlsdata['area_mat']
-    pos_vec = soma_pos['pos_vec']
-    CELL_N = len(pos_vec)
-    print "CELL_N=", CELL_N
-    ai =  np.argsort(pos_vec[:, 2]).flatten()
-    area_mat = area_mat[ai]
-    area_mat = area_mat[:, ai]
+def plot_adjmat_byz(infile, (adj_mat_plot,)):
+    con = sqlite3.connect(infile)
+    cell_data = pandas.io.sql.read_frame("select c.cell_id, p.z from cells as c join somapositions as p on c.cell_id = p.cell_id order by p.z", 
+                                         con, index_col="cell_id")
 
+    print "cell_data="
+    print cell_data.head()
+
+    area_mat, cell_ids = create_adj_mat(con, PAPER_MAX_CONTACT_AREA, cell_data)
+    area_mat += area_mat.T
+
+
+    CELL_N = len(area_mat)
     
     f = pylab.figure(figsize=(12, 12))
     ax = f.add_subplot(1, 1, 1)
@@ -264,7 +275,7 @@ def plot_adjmat_byz((type_file, pos_file, xlsxdata_file), (adj_mat_plot,)):
 pipeline_run([
               plot_contacts, 
     plot_somapos, 
-    plot_adj, 
-    #plot_example_cells, plot_adjmat_byclass, 
-    #plot_adjmat_byz
+    plot_adj, plot_adjmat_byclass, 
+    plot_example_cells, 
+    plot_adjmat_byz
 ])
