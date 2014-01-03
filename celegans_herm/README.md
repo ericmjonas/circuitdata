@@ -8,7 +8,7 @@ of this data is from the [second listed dataset](http://www.wormatlas.org/neuron
 optimization can relate neuronal structrure and function", PNAS, March 21, 2006 103: 4723-4728 (doi:10.1073/pnas.0506806103). More recently, full analysis of the 
 data can be found by Varshney, Chen, Paniaqua, Hall and Chklovskii in "Structural 
 properties of the C. elegans neuronal network" PLoS Comput. Biol. Feb 3, 
-2011 3:7:e1001066 (doi:10.1371/journal.pcbi.1001066). Any publication made utilizing the following data should make a reference to this paper.
+2011 3:7:e1001066 [doi:10.1371/journal.pcbi.1001067](http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1001066). Any publication made utilizing the following data should make a reference to this paper.
 
 
 ### Cells
