@@ -17,6 +17,8 @@ class Cells(BaseModel):
     cell_name = CharField()
     cell_class = CharField()
     soma_pos = FloatField()
+    neurotransmitters = CharField(null=True)
+    role = CharField(null=True)
 
 class Synapses(BaseModel):
     

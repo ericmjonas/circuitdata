@@ -178,9 +178,18 @@ def populate(infile, outfile):
     neurons = indata['neurons']
     for neuron_name, nd in neurons.iterrows():
         print "creating", neuron_name
+        nt = nd['neurotransmitters']
+        if type(nt) == float:
+            nt = None
+
+        role = nd['role']
+        if type(role)==float:
+            role = None
         Cells.create(cell_name =neuron_name, 
                      cell_class= nd['class'], 
-                     soma_pos = nd['soma_pos'])
+                     soma_pos = nd['soma_pos'], 
+                     neurotransmitter=nt, 
+                     role = role)
         
     connections = indata['connections']
     

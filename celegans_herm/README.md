@@ -10,6 +10,11 @@ data can be found by Varshney, Chen, Paniaqua, Hall and Chklovskii in "Structura
 properties of the C. elegans neuronal network" PLoS Comput. Biol. Feb 3, 
 2011 3:7:e1001066 [doi:10.1371/journal.pcbi.1001067](http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1001066). Any publication made utilizing the following data should make a reference to this paper.
 
+I am not incredibly thrilled with the quality of the role and neurotransmitter
+metadata for this model. With as much research as has been put into this
+system over the years, it's frustrating that bits of the worm atlas aren't even
+consistent. Nonetheless, this is a reasonable first attempt, especilaly for 
+multi-cell classes. 
 
 ### Cells
 
@@ -17,7 +22,8 @@ properties of the C. elegans neuronal network" PLoS Comput. Biol. Feb 3,
 * cell_name : official cell name, from original brenner paper
 * cell_class : an attempt at determining the cell class
 * soma_pos : position along the body axis, range : [0, 1]
-
+* role: text string of Motor, sensory, interneuron 
+* neurotransmitter: text string of type of neurotransmitter
 
 ### Synapses
 
@@ -27,4 +33,11 @@ Synapses; note that the electrical synapses are undirected, the chemical synapse
 * to_id : to cell id
 * synapse_type: 'E' for electrical, 'C' for chemical 
 * count : # of this kind of synapse
+
+
+
+TODO
+------
+Add "gross types"/ role from metadata
+Diagnostic plots
 
