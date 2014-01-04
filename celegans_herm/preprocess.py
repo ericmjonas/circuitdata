@@ -176,8 +176,8 @@ def populate(infile, outfile):
     # load the individual neurons
     indata = pickle.load(open(infile, 'r'))
     neurons = indata['neurons']
+
     for neuron_name, nd in neurons.iterrows():
-        print "creating", neuron_name
         nt = nd['neurotransmitters']
         if type(nt) == float:
             nt = None
@@ -188,7 +188,7 @@ def populate(infile, outfile):
         Cells.create(cell_name =neuron_name, 
                      cell_class= nd['class'], 
                      soma_pos = nd['soma_pos'], 
-                     neurotransmitter=nt, 
+                     neurotransmitters=nt, 
                      role = role)
         
     connections = indata['connections']
@@ -197,6 +197,7 @@ def populate(infile, outfile):
         for n2 in neurons.index.values:
             c1 = Cells.get(Cells.cell_name == n1)
             c2 = Cells.get(Cells.cell_name == n2)
+
             c = (n1, n2)
             if c in connections:
                 for synapse_type, nbr in connections[c]:
@@ -205,8 +206,12 @@ def populate(infile, outfile):
                     # note this dataset includes entries for both A sends to B (type S) and B receives from A (type R)
                     if code == "Sp" or code == 'S':
                         st_short = 'C'
-                    elif code == 'EJ':
+                    elif code == 'E':
                         st_short = 'E'
+                    elif code == 'R' or code == 'Rp':
+                        pass
+                    else:
+                        raise Exception("code %s not understood" % code)
                     if st_short:
                         s = Synapses.select().where(Synapses.from_id == c1, 
                                                     Synapses.to_id == c2, 
