@@ -16,6 +16,7 @@ import skimage.morphology
 import skimage.measure
 import skimage.io
 import dbmodel 
+import subprocess
 
 LIGHT_AXIS = [0.9916,0.0572, 0.1164]
 MAX_DIM = [132.0, 114.0, 80.0]
@@ -275,7 +276,8 @@ def create_db(_, outfile):
 @follows(type_metadata)
 @follows(merge_positions)
 @follows(create_db)
-def populate_db():
+@files(create_db, "dbdone.setinel")
+def populate_db(infile, outfile):
     dbmodel.db.connect()
     
     from dbmodel import Types, Cells, SomaPositions, Contacts
@@ -319,7 +321,9 @@ def populate_db():
                     Contacts.create(from_id = from_id, to_id = to_id, 
                                     x = r['x'], y=r['y'], z=r['z'], 
                                     area = r['area']).save()
-            
+    dbmodel.db.close()
+    open(outfile, 'w').write(" ")
+
 @follows(transform_data)                                                      
 @files(["conn.areacount.pickle", "xlsxdata.pickle"], 
        "adj_comp.pdf")
@@ -361,6 +365,10 @@ def mat_xls_consistency((conn_areacount, xlsdata), adj_plots):
     f.savefig(adj_plots)
     
     
+@follows(populate_db)
+@files(dbmodel.DB_NAME, dbmodel.DB_NAME + ".gz")
+def compress_db(infile, outfile):
+    subprocess.call(["gzip", infile, outfile])
 
         
 if __name__ == "__main__":
@@ -370,6 +378,7 @@ if __name__ == "__main__":
                   mat_xls_consistency, 
                   process_image_pos, merge_positions, type_metadata, 
                   create_db, 
-                  populate_db
+                  populate_db, 
+                  compress_db
               ])
 

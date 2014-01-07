@@ -6,6 +6,7 @@ import pandas
 import os
 from ruffus import * 
 import dbmodel
+import subprocess
 
 DATA_DIR = "../../data/celegans/conn2"
 
@@ -226,6 +227,11 @@ def populate(infile, outfile):
                             Synapses.update(count = Synapses.count + nbr).where(Synapses.from_id == c1, 
                                                                                 Synapses.to_id == c2, 
                                                                                 synapse_type == st_short)
+    dbmodel.db.close()
 
+@files(populate, dbmodel.DB_NAME + ".gz")
+def compress_db(infile, outfile):
+    subprocess.call(["gzip", infile, outfile])
 
-pipeline_run([read_data, sanity_check, populate])
+pipeline_run([read_data, sanity_check, populate, 
+              compress_db])

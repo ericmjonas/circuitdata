@@ -1,6 +1,8 @@
 Anterior Herm. C. Elegans Connectome
 ====================================
 
+The database is ```celegans_herm.db.gz```
+
 The connectome of the anterior section of the hermaphrodite c. elegans. The source
 of this data is from the [second listed dataset](http://www.wormatlas.org/neuronalwiring.html#NeuronalconnectivityII) at wormatlas. Quoting from them:
 
@@ -35,9 +37,8 @@ Synapses; note that the electrical synapses are undirected, the chemical synapse
 * count : # of this kind of synapse
 
 
-
 TODO
 ------
-Add "gross types"/ role from metadata
-Diagnostic plots
+- [ ] Add "gross types"/ role from metadata
+- [ ] more Diagnostic plots
 
