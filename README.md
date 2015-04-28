@@ -10,7 +10,7 @@ files of crappy excel spreadsheets.
 
 Included are the preprocessing scripts and the resulting database, 
 but NOT the original data from which the data was derived (which
-is under merky copyright status). 
+is sometimes under murky copyright status). 
 
 Each dataset is in a separate folder organized by where the data came
 from, a readme (containing notes explaining the data, the schema,
