@@ -271,11 +271,11 @@ def plot_adjmat_byz(infile, (adj_mat_plot,)):
     f.savefig(adj_mat_plot, dpi=200)
 
 
-
-pipeline_run([
-              plot_contacts, 
-    plot_somapos, 
-    plot_adj, plot_adjmat_byclass, 
-    plot_example_cells, 
-    plot_adjmat_byz
-])
+if __name__ == "__main__":
+    pipeline_run([
+                  plot_contacts, 
+        plot_somapos, 
+        plot_adj, plot_adjmat_byclass, 
+        plot_example_cells, 
+        plot_adjmat_byz
+    ])
