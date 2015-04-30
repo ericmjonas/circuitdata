@@ -1,7 +1,7 @@
 Mouse Retina Connectome
 ============================
 
-The database is ```mouseretina.db.gz```
+The database is ```mouseretina.db```
 
 This is data from [Connectomic reconstruction of the inner plexiform
 layer in the mouse
