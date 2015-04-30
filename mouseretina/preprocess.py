@@ -364,13 +364,6 @@ def mat_xls_consistency((conn_areacount, xlsdata), adj_plots):
 
     f.savefig(adj_plots)
     
-    
-@follows(populate_db)
-@files(dbmodel.DB_NAME, dbmodel.DB_NAME + ".gz")
-def compress_db(infile, outfile):
-    subprocess.call(["gzip", infile, outfile])
-
-        
 if __name__ == "__main__":
     
     pipeline_run([load_synapse_data, load_xlsx_data, transform_data, 
@@ -379,6 +372,5 @@ if __name__ == "__main__":
                   process_image_pos, merge_positions, type_metadata, 
                   create_db, 
                   populate_db, 
-                  compress_db
               ])
 

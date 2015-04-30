@@ -229,9 +229,5 @@ def populate(infile, outfile):
                                                                                 synapse_type == st_short)
     dbmodel.db.close()
 
-@files(populate, dbmodel.DB_NAME + ".gz")
-def compress_db(infile, outfile):
-    subprocess.call(["gzip", infile, outfile])
-
 pipeline_run([read_data, sanity_check, populate, 
-              compress_db])
+              ])
